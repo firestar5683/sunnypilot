@@ -1,7 +1,6 @@
 from cereal import car, log, custom
 import cereal.messaging as messaging
 from opendbc.car import DT_CTRL, structs
-from opendbc.car.gm.values import GMFlags
 from opendbc.car.interfaces import MAX_CTRL_SPEED
 
 from openpilot.selfdrive.selfdrived.events import Events
@@ -104,13 +103,10 @@ class CarSpecificEvents:
       if CS.vEgo < self.CP.minEnableSpeed and not (CS.standstill and CS.brake >= 20 and
                                                    self.CP.networkLocation == NetworkLocation.fwdCamera):
         events.add(EventName.belowEngageSpeed)
-      if CS.cruiseState.standstill and not self.CP.autoResumeSng:
+      if CS.cruiseState.standstill:
         events.add(EventName.resumeRequired)
       if CS.vEgo < self.CP.minSteerSpeed:
         events.add(EventName.belowSteerSpeed)
-
-      if (self.CP.flags & GMFlags.CC_LONG) and CS.vEgo < self.CP.minEnableSpeed and CS.cruiseState.enabled:
-        events.add(EventName.speedTooLow)
 
     elif self.CP.brand == 'volkswagen':
       events = self.create_common_events(CS, CS_prev, extra_gears=[GearShifter.eco, GearShifter.sport, GearShifter.manumatic],
